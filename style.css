@@ -1,21 +1,51 @@
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f7f3e9; /* Light cream background */
+    background-color: #f7f3e9;
+    /* Light cream background */
 }
+
+h1 {
+    color: antiquewhite;
+}
+
 .hero-background {
-    /*background-image: url('https://placehold.co/1920x1080/6a4d3a/ffffff'); /* Placeholder image with text removed */
+    background-image: url('your-coffee-shop-banner.jpg');
+    /* Placeholder image with text removed */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-color: rgb(106, 77, 58);
+    opacity: 0;
+    transform: translateY(-50px);
+    animation: slideDownFadeIn 1s ease-out forwards;
 }
+
+@keyframes slideDownFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Custom styles for better visual appeal, overriding some Tailwind defaults if needed */
 .btn-primary {
-    /* Tailwind classes are applied directly in HTML for this button */
+    display: inline-block;
+    background-color: #f7e848;
+    /* Example coffee-like color */
+    color: #333;
+    padding: 1rem 2rem;
+    border-radius: 9999px;
+    /* For fully rounded corners */
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
+
 .section-title {
-    /* Tailwind classes are applied directly in HTML for this title */
+    background-color: #f0ce71;
+    /* Slightly darker on hover */
 }
+
 /* Styles for the cart modal */
 .cart-modal-overlay {
     position: fixed;
@@ -29,6 +59,7 @@ body {
     align-items: center;
     z-index: 1000;
 }
+
 .cart-modal-content {
     background-color: #fff;
     padding: 2rem;
@@ -38,6 +69,7 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     position: relative;
 }
+
 .cart-close-button {
     position: absolute;
     top: 1rem;
@@ -48,13 +80,15 @@ body {
     cursor: pointer;
     color: #333;
 }
+
 /* Style for the add to cart confirmation message */
 .add-to-cart-confirmation {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #22c55e; /* Tailwind green-500 */
+    background-color: #22c55e;
+    /* Tailwind green-500 */
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
@@ -79,7 +113,8 @@ input[type="radio"].form-radio {
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 50%;
-    border: 2px solid #a16207; /* amber-700 for border */
+    border: 2px solid #a16207;
+    /* amber-700 for border */
     background-color: #fff;
     vertical-align: middle;
     position: relative;
@@ -87,15 +122,19 @@ input[type="radio"].form-radio {
 }
 
 input[type="radio"].form-radio:checked {
-    background-color: #f59e0b; /* amber-500 for checked state */
-    border-color: #f59e0b; /* amber-500 for checked state */
+    background-color: #f59e0b;
+    /* amber-500 for checked state */
+    border-color: #f59e0b;
+    /* amber-500 for checked state */
 }
 
 input[type="radio"].form-radio:checked::before {
     content: '';
     display: block;
-    width: 0.625rem; /* 10px */
-    height: 0.625rem; /* 10px */
+    width: 0.625rem;
+    /* 10px */
+    height: 0.625rem;
+    /* 10px */
     background-color: #fff;
     border-radius: 50%;
     position: absolute;
@@ -106,5 +145,6 @@ input[type="radio"].form-radio:checked::before {
 
 input[type="radio"].form-radio:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5); /* Focus ring with amber-500 */
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.5);
+    /* Focus ring with amber-500 */
 }
