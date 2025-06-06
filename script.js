@@ -17,7 +17,7 @@ mobileMenu.querySelectorAll('a').forEach(link => {
 const contactForm = document.getElementById('contact-form');
 const formMessage = document.getElementById('form-message');
 
-contactForm.addEventListener('submit', function(event) {
+contactForm.addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent default form submission
 
     const name = document.getElementById('contact-name').value;
@@ -214,11 +214,16 @@ function hideAllSections() {
 }
 
 // Event listeners for navigation links to show/hide sections
-document.querySelectorAll('nav a').forEach(link => {
+document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', (event) => {
         const targetId = event.target.getAttribute('href').substring(1); // Get section ID
-        hideAllSections(); // Hide all sections first
-        document.getElementById(targetId).classList.remove('hidden'); // Show target section
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+            event.preventDefault(); // Prevent default anchor jump
+            hideAllSections(); // Hide all sections first
+            targetSection.classList.remove('hidden'); // Show the target section
+            targetSection.scrollIntoView({ behavior: 'smooth' }); // Optional: smooth scroll
+        }
     });
 });
 
