@@ -216,13 +216,23 @@ function hideAllSections() {
 // Event listeners for navigation links to show/hide sections
 document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', (event) => {
-        const targetId = event.target.getAttribute('href').substring(1); // Get section ID
+        const targetId = event.target.getAttribute('href').substring(1); // e.g., "home"
         const targetSection = document.getElementById(targetId);
+
         if (targetSection) {
-            event.preventDefault(); // Prevent default anchor jump
-            hideAllSections(); // Hide all sections first
-            targetSection.classList.remove('hidden'); // Show the target section
-            targetSection.scrollIntoView({ behavior: 'smooth' }); // Optional: smooth scroll
+            event.preventDefault();
+
+            // Special behavior for Home tab
+            if (targetId === 'home') {
+                // Reload the entire page to restore original home view
+                window.location.reload(); // Hard reload
+                return;
+            }
+
+            // For other tabs, show only that section
+            hideAllSections();
+            targetSection.classList.remove('hidden');
+            targetSection.scrollIntoView({ behavior: 'smooth' });
         }
     });
 });
