@@ -17,7 +17,11 @@ mobileMenu.querySelectorAll('a').forEach(link => {
 const contactForm = document.getElementById('contact-form');
 const formMessage = document.getElementById('form-message');
 
+ main
+contactForm.addEventListener('submit', function (event) {
+=======
 contactForm.addEventListener('submit', async function(event) { // Added 'async' keyword
+ main
     event.preventDefault(); // Prevent default form submission
 
     const name = document.getElementById('contact-name').value;
@@ -251,11 +255,26 @@ function hideAllSections() {
 }
 
 // Event listeners for navigation links to show/hide sections
-document.querySelectorAll('nav a').forEach(link => {
+document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', (event) => {
-        const targetId = event.target.getAttribute('href').substring(1); // Get section ID
-        hideAllSections(); // Hide all sections first
-        document.getElementById(targetId).classList.remove('hidden'); // Show target section
+        const targetId = event.target.getAttribute('href').substring(1); // e.g., "home"
+        const targetSection = document.getElementById(targetId);
+
+        if (targetSection) {
+            event.preventDefault();
+
+            // Special behavior for Home tab
+            if (targetId === 'home') {
+                // Reload the entire page to restore original home view
+                window.location.reload(); // Hard reload
+                return;
+            }
+
+            // For other tabs, show only that section
+            hideAllSections();
+            targetSection.classList.remove('hidden');
+            targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
     });
 });
 
