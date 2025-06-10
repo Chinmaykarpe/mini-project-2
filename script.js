@@ -13,34 +13,75 @@ mobileMenu.querySelectorAll('a').forEach(link => {
     });
 });
 
-// JavaScript for form submission (client-side only, no server-side for this example)
+// --- JavaScript for form submission (NOW WITH SERVER-SIDE PROCESSING) ---
 const contactForm = document.getElementById('contact-form');
 const formMessage = document.getElementById('form-message');
 
+ main
 contactForm.addEventListener('submit', function (event) {
+=======
+contactForm.addEventListener('submit', async function(event) { // Added 'async' keyword
+ main
     event.preventDefault(); // Prevent default form submission
 
     const name = document.getElementById('contact-name').value;
     const email = document.getElementById('email').value;
     const message = document.getElementById('message').value;
 
-    // Simulate form submission success
-    formMessage.textContent = 'Message sent successfully! (No server-side processing for this form)';
-    formMessage.classList.remove('text-red-600');
-    formMessage.classList.add('text-green-600');
-    formMessage.classList.remove('hidden');
+    // Clear any previous messages and hide the message div
+    formMessage.classList.add('hidden');
+    formMessage.classList.remove('text-green-600', 'text-red-600');
 
-    contactForm.reset(); // Clear the form
+    // Basic client-side validation
+    if (!name || !email || !message) {
+        formMessage.textContent = 'Please fill in all fields.';
+        formMessage.classList.add('text-red-600');
+        formMessage.classList.remove('hidden');
+        return;
+    }
 
-    setTimeout(() => {
-        formMessage.classList.add('hidden');
-    }, 5000);
+    try {
+        // Send form data to the PHP backend using Fetch API
+        const response = await fetch('http://localhost/mini%20project%202/submit_contact.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Tell the server we are sending JSON
+            },
+            body: JSON.stringify({ name, email, message }) // Convert JavaScript object to JSON string
+        });
+
+        // Parse the JSON response from the PHP script
+        const result = await response.json();
+
+        if (result.success) {
+            // If PHP indicates success
+            formMessage.textContent = result.message; // Display success message from PHP
+            formMessage.classList.add('text-green-600');
+            contactForm.reset(); // Clear the form on successful submission
+        } else {
+            // If PHP indicates an error
+            formMessage.textContent = `Error: ${result.message}`; // Display error message from PHP
+            formMessage.classList.add('text-red-600');
+        }
+    } catch (error) {
+        // Catch any network or parsing errors
+        console.error('Error submitting contact form:', error);
+        formMessage.textContent = 'Failed to send message. Please check your network connection.';
+        formMessage.classList.add('text-red-600');
+    } finally {
+        // Always show the message and hide it after a delay
+        formMessage.classList.remove('hidden');
+        setTimeout(() => {
+            formMessage.classList.add('hidden');
+        }, 5000); // Message disappears after 5 seconds
+    }
 });
 
 
 // --- Shopping Cart Functionality ---
 let cart = []; // Array to store cart items
 // Retrieve stored orderDetails from localStorage on load, or initialize empty
+// This is still used for displaying the "Your Recent Order" section
 let orderDetails = JSON.parse(localStorage.getItem('lastOrderDetails')) || {};
 
 const cartButton = document.getElementById('cart-button');
@@ -339,11 +380,11 @@ paymentMethodRadios.forEach(radio => {
 });
 
 
-// Handle Pay Now / Place Order (CLIENT-SIDE ONLY)
-payNowButton.addEventListener('click', () => {
+// --- Handle Pay Now / Place Order (NOW WITH SERVER-SIDE PROCESSING) ---
+payNowButton.addEventListener('click', async () => { // Added 'async' keyword
     const customerName = customerNameInput.value.trim();
-    const orderType = document.querySelector('input[name="order-type"]:checked')?.value; // Use optional chaining
-    const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value; // Use optional chaining
+    const orderType = document.querySelector('input[name="order-type"]:checked')?.value;
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value;
 
     // Basic validation for payment method selection
     if (!paymentMethod) {
@@ -363,7 +404,7 @@ payNowButton.addEventListener('click', () => {
         deliveryAddress = deliveryAddressTextarea.value.trim();
     }
 
-    // Prepare data to "save"
+    // Prepare data to send to PHP backend
     const currentOrderData = {
         customerName: customerName,
         orderType: orderType,
@@ -372,29 +413,60 @@ payNowButton.addEventListener('click', () => {
         paymentMethod: paymentMethod,
         cart: cart, // Send the entire cart array
         totalAmount: parseFloat(cartTotalSpan.textContent.replace('₹', '')),
-        orderTimestamp: new Date().toISOString() // Add a timestamp
+        // orderTimestamp will be set by PHP (NOW())
     };
 
-    // Simulate success and store the order details locally
-    checkoutMessage.textContent = 'Order placed successfully! (Client-side simulation)';
-    checkoutMessage.classList.remove('text-red-600');
-    checkoutMessage.classList.add('text-green-600');
+    // Show a loading/processing message
+    checkoutMessage.classList.add('hidden'); // Hide any previous messages
+    checkoutMessage.classList.remove('text-green-600', 'text-red-600'); // Clear colors
+    checkoutMessage.textContent = 'Placing order... Please wait.';
     checkoutMessage.classList.remove('hidden');
 
-    // Store the current order details in the global orderDetails variable
-    orderDetails = { ...currentOrderData };
-    // Also store it in localStorage to persist it across page loads
-    localStorage.setItem('lastOrderDetails', JSON.stringify(orderDetails));
+    try {
+        // Send order data to the PHP backend using Fetch API
+        const response = await fetch('http://localhost/mini%20project%202/place_order.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(currentOrderData) // Convert JavaScript object to JSON string
+        });
 
+        // Parse the JSON response from the PHP script
+        const result = await response.json();
 
-    // Hide modal after a delay and then show the order details
-    setTimeout(() => {
-        cartModal.classList.add('hidden');
-        showYourOrderView(); // Show the new "Your Order" section
-        cart = []; // Clear cart after successful checkout
-        updateCartDisplay(); // Update cart display to reflect empty cart
-        // orderDetails is now stored and will be used by showYourOrderView
-    }, 1500);
+        if (result.success) {
+            // If PHP indicates success
+            checkoutMessage.textContent = result.message; // Display success message from PHP
+            checkoutMessage.classList.add('text-green-600');
+
+            // Store the current order details in the global orderDetails variable for immediate display
+            // We add a client-side timestamp here for display purposes, though PHP sets its own.
+            orderDetails = { ...currentOrderData, orderTimestamp: new Date().toISOString() };
+            // Also store it in localStorage to persist it across simple page loads (though now backed by DB)
+            localStorage.setItem('lastOrderDetails', JSON.stringify(orderDetails));
+
+            // Hide modal after a delay and then show the order details section
+            setTimeout(() => {
+                cartModal.classList.add('hidden');
+                showYourOrderView(); // Show the new "Your Order" section
+                cart = []; // Clear cart after successful checkout
+                updateCartDisplay(); // Update cart display to reflect empty cart
+            }, 1500); // 1.5 second delay before closing modal and showing order view
+
+        } else {
+            // If PHP indicates an error
+            checkoutMessage.textContent = `Error placing order: ${result.message}`;
+            checkoutMessage.classList.add('text-red-600');
+            // Keep the modal open to show the error, user can retry or correct info
+        }
+    } catch (error) {
+        // Catch any network or parsing errors
+        console.error('Error placing order:', error);
+        checkoutMessage.textContent = 'Failed to place order. Please check your network connection and try again.';
+        checkoutMessage.classList.add('text-red-600');
+        // Keep the modal open to show the error
+    }
 });
 
 // Function to display "Your Order" section after successful checkout
